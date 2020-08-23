@@ -56,7 +56,7 @@ public class SessionAPI {
     }
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
-    public Session getCurrentSessoin(@RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
+    public Session getCurrentSession(@RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
         if (token == null) {
             throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }

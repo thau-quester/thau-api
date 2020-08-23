@@ -68,10 +68,10 @@ class ConfigurationsTests {
         Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
         assertThat(body.get("appName")).isEqualTo("thau-test");
         assertThat(body.get("environment")).isEqualTo("TEST");
-        assertThat(body.get("encryptionAlgorithm")).isEqualTo("HMAC");
         assertThat(body.get("broadcastChannels")).isEqualTo(List.of("http"));
         assertThat(body.get("availableStrategies")).isEqualTo(List.of("google", "facebook", "password"));
-        assertThat(body.keySet()).isEqualTo(
-                Set.of("appName", "environment", "encryptionAlgorithm", "broadcastChannels", "availableStrategies"));
+        assertThat(body.keySet()).isEqualTo(Set.of("environment", "appName", "passwordStrategyConfiguration",
+                "googleStrategyConfiguration", "facebookStrategyConfiguration", "availableStrategies",
+                "broadcastChannels", "jwtconfiguration", "corsenabled"));
     }
 }

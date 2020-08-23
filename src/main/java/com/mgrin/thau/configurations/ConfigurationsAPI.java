@@ -17,8 +17,8 @@ public class ConfigurationsAPI {
         this.configurations = configurations;
     }
 
-    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
-    public PublicConfigurationDTO getPublicConfiguration() {
-        return new PublicConfigurationDTO(configurations);
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ThauConfigurations getPublicConfiguration() {
+        return configurations;
     }
 }

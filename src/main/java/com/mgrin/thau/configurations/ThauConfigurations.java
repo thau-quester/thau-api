@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mgrin.thau.configurations.broadcast.BroadcastChannel;
 import com.mgrin.thau.configurations.broadcast.HTTPBroadcastConfiguration;
 import com.mgrin.thau.configurations.jwt.JWTConfiguration;
@@ -42,6 +43,7 @@ public class ThauConfigurations {
     private FacebookStrategyConfiguration facebookStrategyConfiguration;
 
     @Autowired(required = false)
+    @JsonIgnore
     private HTTPBroadcastConfiguration httpBroadcastConfiguration;
 
     private List<Strategy> availableStrategies;
