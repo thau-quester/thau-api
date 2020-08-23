@@ -97,17 +97,26 @@ public class UsersAPIUpdateUsersTests {
         session.setStrategy(Strategy.PASSWORD);
         session.setUser(user);
 
+        User userUpdate = TestUtils.createUser(email);
+        userUpdate.setEmail("trololo@tro.lolo");
+        userUpdate.setFirstName("New first name!");
+
         Mockito.when(sessionService.getSessionFromToken(token)).thenReturn(Optional.of(session));
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String userJSON = objectMapper.writeValueAsString(user);
+        String userUpdateJSON = objectMapper.writeValueAsString(userUpdate);
 
-        MockHttpServletResponse response = this.mockMvc.perform(MockMvcRequestBuilders.put("/users/1")
-                .header("Content-Type", "application/json").header(SessionAPI.JWT_HEADER, token).content(userJSON))
+        MockHttpServletResponse response = this.mockMvc
+                .perform(MockMvcRequestBuilders.put("/users/1").header("Content-Type", "application/json")
+                        .header(SessionAPI.JWT_HEADER, token).content(userUpdateJSON))
                 .andReturn().getResponse();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getContentAsString()).isEqualTo("");
+        assertThat(response.getContentAsString()).isNotEqualTo("");
 
+        HashMapConverter converter = new HashMapConverter();
+        Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
+        assertThat(body.get("email")).isEqualTo(email);
+        assertThat(body.get("firstName")).isEqualTo("New first name!");
         Mockito.verify(userRepository).save(Mockito.any());
     }
 }

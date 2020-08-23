@@ -51,7 +51,7 @@ public class SessionsAPIGetSessionTests {
 
         assertThat(response.getStatus()).isEqualTo(401);
         assertThat(body.keySet()).isEqualTo(Set.of("message", "debugMessage", "status", "timestamp"));
-        assertThat(body.get("message")).isEqualTo("Unauthorized");
+        assertThat(body.get("message")).isEqualTo("Unauthorized: no token provided");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class SessionsAPIGetSessionTests {
 
         assertThat(response.getStatus()).isEqualTo(401);
         assertThat(body.keySet()).isEqualTo(Set.of("message", "debugMessage", "status", "timestamp"));
-        assertThat(body.get("message")).isEqualTo("Unauthorized");
+        assertThat(body.get("message")).isEqualTo("Unauthorized: could not decrypt token");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SessionsAPIGetSessionTests {
 
         assertThat(response.getStatus()).isEqualTo(401);
         assertThat(body.keySet()).isEqualTo(Set.of("message", "debugMessage", "status", "timestamp"));
-        assertThat(body.get("message")).isEqualTo("Unauthorized");
+        assertThat(body.get("message")).isEqualTo("Unauthorized: no session found");
     }
 
     @Test

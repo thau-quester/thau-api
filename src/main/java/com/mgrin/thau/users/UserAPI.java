@@ -72,7 +72,7 @@ public class UserAPI {
 
     @PutMapping(path = "/{userId}", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<Void> updateUser(@RequestBody User user, @PathVariable(value = "userId") long userId,
+    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable(value = "userId") long userId,
             @RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token)
             throws JsonMappingException, JsonProcessingException {
         Optional<Session> opSession = sessions.getSessionFromToken(token);
@@ -89,7 +89,7 @@ public class UserAPI {
         user.setEmail(existingUser.getEmail());
         user.setCreatedAt(existingUser.getCreatedAt());
         users.update(user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping(path = "/{userId}", produces = { MediaType.APPLICATION_JSON_VALUE })

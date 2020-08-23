@@ -58,18 +58,18 @@ public class SessionAPI {
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public Session getCurrentSession(@RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
         if (token == null) {
-            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no token provided");
         }
 
         Optional<Session> opSession;
         try {
             opSession = sessions.getSessionFromToken(token);
         } catch (Exception e) {
-            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: could not decrypt token", e);
         }
 
         if (!opSession.isPresent()) {
-            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no session found");
         }
 
         Session session = opSession.get();
