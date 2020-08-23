@@ -2,9 +2,11 @@ name: Thau API
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - master
   pull_request:
-
+    branches:
+      - master
 jobs:
   test:
     runs-on: ubuntu-latest
