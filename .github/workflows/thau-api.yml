@@ -38,8 +38,11 @@ jobs:
         echo "LOGIN TO DOCKER HUB"
         docker login -u mgrin -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-        echo "BUILDING THE IMAGE"
-        docker build --tag mgrin/thau:${MVN_VERSION} --tag mgrin/thau:latest .
+        echo "BUILDING AND PUSHING THE IMAGE"
+        docker build --tag mgrin/thau:${MVN_VERSION} .
+        docker push mgrin/thau:${MVN_VERSION}
 
-        echo "PUSHING THE IMAGE"
-        docker push mgrin/thau:latest
+        if [[ "$MVN_VERSION" != *"-BETA" ]]; then
+          docker tag mgrin/thau:${MVN_VERSION} mgrin/thau:latest
+          mgrin/thau:latest
+        fi        
