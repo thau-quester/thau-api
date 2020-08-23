@@ -15,7 +15,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Test Thau API
       run: |
-        cd thau-api
         MVN_VERSION=$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
         if [[ "$MVN_VERSION" == *"-SNAPSHOT" ]]; then
           >&2 echo "Project version is SNAPSHOT!" 
@@ -32,8 +31,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Push the Docker image
       run: |
-        cd thau-api
-
         ./mvnw package -Dmaven.test.skip=true
 
         MVN_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
