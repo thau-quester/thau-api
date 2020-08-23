@@ -37,7 +37,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Push the Docker image
+    - name: Build and Push the Docker image
       run: |
         ./mvnw -q package -Dmaven.test.skip=true
 
