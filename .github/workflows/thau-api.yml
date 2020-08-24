@@ -66,8 +66,8 @@ jobs:
           docker tag mgrin/thau:${MVN_VERSION} mgrin/thau:latest
           docker push mgrin/thau:latest
           gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-latest.jar
-        fi
 
-        echo "${{ secrets.SSH_KEY_THAU_DEV }}" | base64 --decode > .github-ci
-        chmod 600 .github-ci
-        ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "pwd"
+          echo "${{ secrets.SSH_KEY_THAU_DEV }}" | base64 --decode > .github-ci
+          chmod 600 .github-ci
+          ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "cd thau-api && ./deploy.sh"
+        fi

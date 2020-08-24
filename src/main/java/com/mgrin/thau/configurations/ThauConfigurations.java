@@ -21,6 +21,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ThauConfigurations {
 
+    @Value("${app.version}")
+    private String apiVersion;
+
     @Value("${thau.env}")
     private String environment;
 
@@ -75,6 +78,10 @@ public class ThauConfigurations {
         }
 
         this.broadcastChannels = broadcastChannels;
+    }
+
+    public String getApiVersion() {
+        return apiVersion;
     }
 
     public String getEnvironment() {
