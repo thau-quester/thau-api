@@ -69,4 +69,4 @@ jobs:
         fi
 
         echo "{{ secrets.SSH_KEY_THAU_DEV }}" > .github-ci
-        ssh -o VerifyHostKeyDNS=no -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "pwd"
+        ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "pwd"
