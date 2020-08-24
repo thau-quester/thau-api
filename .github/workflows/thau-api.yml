@@ -68,5 +68,10 @@ jobs:
           gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-latest.jar
         fi
 
+        mkdir -p .ssh
+        echo "Host *
+        StrictHostKeyChecking no
+        " > .ssh/config
+
         echo "{{ secrets.SSH_KEY_THAU_DEV }}" > .github-ci
         ssh -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "pwd"
