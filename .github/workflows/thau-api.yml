@@ -57,11 +57,14 @@ jobs:
         docker build --tag mgrin/thau:${MVN_VERSION} .
         docker push mgrin/thau:${MVN_VERSION}
 
+        gsutil ls   
+        gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
+        
         if [[ "$MVN_VERSION" != *"-BETA" ]]; then
           docker tag mgrin/thau:${MVN_VERSION} mgrin/thau:latest
-          mgrin/thau:latest
+          docker push mgrin/thau:latest
+          gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-latest.jar
         fi
 
-        gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
         echo "{{ secrets.SSH_KEY_THAU_DEV }}" > .github-ci
         ssh -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "pwd"
