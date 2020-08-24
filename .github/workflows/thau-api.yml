@@ -57,6 +57,7 @@ jobs:
         docker build --tag mgrin/thau:${MVN_VERSION} .
         docker push mgrin/thau:${MVN_VERSION}
 
+        gsutil config
         gsutil ls   
         gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
         
