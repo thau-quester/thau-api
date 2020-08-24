@@ -60,7 +60,6 @@ jobs:
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > key.json
 
         gcloud auth activate-service-account --key-file=key.json
-        gsutil ls   
         gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
         
         if [[ "$MVN_VERSION" != *"-BETA" ]]; then
