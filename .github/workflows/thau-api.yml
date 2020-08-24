@@ -62,6 +62,6 @@ jobs:
           mgrin/thau:latest
         fi
 
-        gsutils cp tartget/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
+        gsutil cp tartget/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
         echo "{{ secrets.SSH_KEY_THAU_DEV }}" > .github-ci
         ssh -i .github-ci grishin_nikita_gmail_com@thau.quester-app.dev "pwd"
