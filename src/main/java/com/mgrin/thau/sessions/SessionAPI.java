@@ -12,7 +12,10 @@ import com.mgrin.thau.configurations.strategies.Strategy;
 import com.mgrin.thau.credentials.Credentials;
 import com.mgrin.thau.credentials.CredentialService;
 import com.mgrin.thau.sessions.authDto.FacebookAuthDTO;
+import com.mgrin.thau.sessions.authDto.GoogleAuthDTO;
 import com.mgrin.thau.sessions.authDto.PasswordAuthDTO;
+import com.mgrin.thau.sessions.externalServices.FacebookService;
+
 import com.mgrin.thau.users.User;
 import com.mgrin.thau.users.UserService;
 import com.mgrin.thau.utils.TokenDTO;
@@ -121,6 +124,31 @@ public class SessionAPI {
         }
 
         String email = facebookUser.getEmail();
+
+        Optional<User> opUser = userService.getByEmail(email);
+        User user;
+        if (!opUser.isPresent()) {
+            user = User.of(facebookUser);
+            user = userService.create(user, facebookUser);
+        } else {
+            user = opUser.get();
+            userService.updateProvidersData(user, facebookUser);
+        }
+
+        Session session = sessions.create(user, Strategy.FACEBOOK);
+        String token = sessions.createJWTToken(session);
+        ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
+
+        return response;
+    }
+
+    @PostMapping(path = "/google", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    @Broadcasted(type = BroadcastEventType.EXCHANGE_FACEBOOK_AUTH_TOKEN_FOR_TOKEN)
+    public ResponseEntity<TokenDTO> createSession(@RequestBody GoogleAuthDTO auth) {
+        if (auth.getIdToken() == null) {
+            throw new APIError(HttpStatus.NOT_FOUND, "User not found");
+        }
 
         Optional<User> opUser = userService.getByEmail(email);
         User user;
