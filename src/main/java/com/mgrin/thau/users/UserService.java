@@ -3,6 +3,7 @@ package com.mgrin.thau.users;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.mgrin.thau.configurations.strategies.Strategy;
 
 import com.mgrin.thau.credentials.CredentialService;
@@ -51,12 +52,32 @@ public class UserService {
         return savedUser;
     }
 
+    public User create(User user, GoogleIdToken.Payload payload) {
+        User savedUser = users.save(user);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(payload);
+        providers.create(savedUser, Strategy.GOOGLE, map);
+        return savedUser;
+    }
+
     public void updateProvidersData(User user, com.restfb.types.User data) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.FACEBOOK);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(data);
         Provider provider;
         if (!opProvider.isPresent()) {
             provider = providers.create(user, Strategy.FACEBOOK, map);
+        } else {
+            provider = opProvider.get();
+            provider.setData(map);
+            providers.update(provider);
+        }
+    }
+
+    public void updateProvidersData(User user, GoogleIdToken.Payload payload) {
+        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.FACEBOOK);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(payload);
+        Provider provider;
+        if (!opProvider.isPresent()) {
+            provider = providers.create(user, Strategy.GOOGLE, map);
         } else {
             provider = opProvider.get();
             provider.setData(map);
@@ -71,4 +92,5 @@ public class UserService {
     public Optional<User> getByEmail(String email) {
         return users.findByEmail(email);
     }
+
 }

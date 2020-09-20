@@ -1,4 +1,4 @@
-package com.mgrin.thau.sessions;
+package com.mgrin.thau.sessions.externalServices;
 
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
