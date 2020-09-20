@@ -1,15 +1,22 @@
 package com.mgrin.thau.sessions.authDto;
 
 public class GoogleAuthDTO {
-    private String idToken;
-    
+    private String code;
+    private String redirectURI;
 
-    public String getIdToken() {
-        return idToken;
+    public String getCode() {
+        return code;
     }
 
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
+    public String getRedirectURI() {
+        return redirectURI;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setRedirectURI(String redirectURI) {
+        this.redirectURI = redirectURI;
+    }
 }

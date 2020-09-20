@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;
 
 public class APIError extends RuntimeException {
-    
+
     private static final long serialVersionUID = 8030233666972570016L;
-    
+
     private String message;
     private String debugMessage;
     private HttpStatus status;
@@ -24,6 +24,10 @@ public class APIError extends RuntimeException {
         this.status = HttpStatus.INTERNAL_SERVER_ERROR;
         this.message = ex.getMessage();
         this.debugMessage = ex.getLocalizedMessage();
+
+        if (!(ex instanceof APIError)) {
+            ex.printStackTrace();
+        }
     }
 
     public APIError(HttpStatus status, Throwable ex) {
@@ -31,6 +35,9 @@ public class APIError extends RuntimeException {
         this.status = status;
         this.message = ex.getMessage();
         this.debugMessage = ex.getLocalizedMessage();
+        if (!(ex instanceof APIError)) {
+            ex.printStackTrace();
+        }
     }
 
     public APIError(HttpStatus status, String message) {
@@ -45,12 +52,15 @@ public class APIError extends RuntimeException {
         this.status = status;
         this.message = message;
         this.debugMessage = ex.getLocalizedMessage();
+        if (!(ex instanceof APIError)) {
+            ex.printStackTrace();
+        }
     }
 
     public HttpStatus getStatus() {
         return status;
     }
-    
+
     public APIErrorDTO getDTO() {
         return new APIErrorDTO(this);
     }

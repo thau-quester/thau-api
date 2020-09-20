@@ -1,8 +1,10 @@
 package com.mgrin.thau.sessions;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.mgrin.thau.APIError;
 import com.mgrin.thau.broadcaster.Broadcasted;
 import com.mgrin.thau.broadcaster.BroadcastEvent.BroadcastEventType;
@@ -15,6 +17,7 @@ import com.mgrin.thau.sessions.authDto.FacebookAuthDTO;
 import com.mgrin.thau.sessions.authDto.GoogleAuthDTO;
 import com.mgrin.thau.sessions.authDto.PasswordAuthDTO;
 import com.mgrin.thau.sessions.externalServices.FacebookService;
+import com.mgrin.thau.sessions.externalServices.GoogleService;
 
 import com.mgrin.thau.users.User;
 import com.mgrin.thau.users.UserService;
@@ -48,14 +51,17 @@ public class SessionAPI {
 
     private FacebookService facebookService;
 
+    private GoogleService googleService;
+
     @Autowired
     public SessionAPI(SessionService sessions, UserService users, CredentialService credentials,
-            ThauConfigurations configurations, FacebookService facebookService) {
+            ThauConfigurations configurations, FacebookService facebookService, GoogleService googleService) {
         this.sessions = sessions;
         this.userService = users;
         this.credentialService = credentials;
         this.configurations = configurations;
         this.facebookService = facebookService;
+        this.googleService = googleService;
     }
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -144,23 +150,31 @@ public class SessionAPI {
 
     @PostMapping(path = "/google", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
             MediaType.APPLICATION_JSON_VALUE })
-    @Broadcasted(type = BroadcastEventType.EXCHANGE_FACEBOOK_AUTH_TOKEN_FOR_TOKEN)
+    @Broadcasted(type = BroadcastEventType.EXCHANGE_GOOGLE_CODE_FOR_TOKEN)
     public ResponseEntity<TokenDTO> createSession(@RequestBody GoogleAuthDTO auth) {
-        if (auth.getIdToken() == null) {
+        if (auth.getCode() == null) {
             throw new APIError(HttpStatus.NOT_FOUND, "User not found");
         }
+
+        GoogleIdToken.Payload googleUser;
+        try {
+            googleUser = googleService.getGoogleUser(auth.getCode(), auth.getRedirectURI());
+        } catch (IOException e) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        }
+        String email = (String) googleUser.get("email");
 
         Optional<User> opUser = userService.getByEmail(email);
         User user;
         if (!opUser.isPresent()) {
-            user = User.of(facebookUser);
-            user = userService.create(user, facebookUser);
+            user = User.of(googleUser);
+            user = userService.create(user, googleUser);
         } else {
             user = opUser.get();
-            userService.updateProvidersData(user, facebookUser);
+            userService.updateProvidersData(user, googleUser);
         }
 
-        Session session = sessions.create(user, Strategy.FACEBOOK);
+        Session session = sessions.create(user, Strategy.GOOGLE);
         String token = sessions.createJWTToken(session);
         ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
 
