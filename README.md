@@ -2,13 +2,24 @@
 
 Ready-to-use authentication service for your application. With a React connector.
 
-Thau API can be ran inside the docker or as a standalone node service.
+Thau API can be ran inside the docker or as a standalone java service.
 
 Thau API can be configured using ENV variables.
 
 Thau API is documeneted with swagger
 
 Thau API can broadcast events outsidee through different broadcasting channels. Currently Suspported channels: http(s) webhooks
+
+# Supported login strategies
+
+- [x] Password
+- [x] Google
+- [x] Facebook
+- [x] Github
+- [ ] Twitter
+- [ ] LinkedIn
+- [ ] BitBucket
+- and more
 
 # Run
 
@@ -48,6 +59,8 @@ In both cases, the Thau service is configured using env variables. In case on do
 * `THAU_STRATEGIES_GOOGLE_CLIENT_SECRET=` - Google client Secret
 * `THAU_STRATEGIES_FACEBOOK_CLIENT_ID=` - Facebook client ID
 * `THAU_STRATEGIES_FACEBOOK_CLIENT_SECRET=` - Facebook client secret
+* `THAU_STRATEGIES_GITHUB_CLIENT_ID=` - GitHub client ID
+* `THAU_STRATEGIES_GITHUB_CLIENT_SECRET=` - GitHub client secret
 * `THAU_BROADCAST_HTTP_URL=` - URL to broadcast events through HTTP channel
 * `THAU_JPA_DIALECT=` - Hibernate dialect. Default: `org.hibernate.dialect.PostgreSQL92Dialect`
 * `THAU_SWAGGER_PATH=` - Path to expose swagger on. Default - `/swagger`
