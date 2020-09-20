@@ -2,6 +2,7 @@ package com.mgrin.thau.users;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import javax.validation.constraints.Email;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.restfb.types.ProfilePictureSource;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -88,9 +90,20 @@ public class User {
 
         Date fbBirthday = facebookUser.getBirthdayAsDate();
         if (fbBirthday != null) {
-            user.setDateOfBirth(LocalDate.ofEpochDay(fbBirthday.getTime()));
+            user.setDateOfBirth(LocalDate.ofInstant(fbBirthday.toInstant(), ZoneId.systemDefault()));
         }
 
+        return user;
+    }
+
+    public static User of(GoogleIdToken.Payload googleUser) {
+        User user = new User();
+        user.setEmail(googleUser.getEmail());
+        user.setUsername((String) googleUser.get("name"));
+        user.setFirstName((String) googleUser.get("given_name"));
+        user.setLastName((String) googleUser.get("family_name"));
+        user.setGender((String) googleUser.get("gender"));
+        user.setPicture((String) googleUser.get("picture"));
         return user;
     }
 
