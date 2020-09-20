@@ -37,13 +37,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Setup gcloud
-      uses: actions-hub/gcloud@master
-      env:
-        PROJECT_ID: quester-263306
-        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      with:
-        args: info
     - name: Build and Push the Docker image
       run: |
         ./mvnw -q package -Dmaven.test.skip=true
@@ -58,12 +51,8 @@ jobs:
         docker push mgrin/thau:${MVN_VERSION}
 
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > key.json
-
-        gcloud auth activate-service-account --key-file=key.json
-        gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-${MVN_VERSION}.jar
         
         if [[ "$MVN_VERSION" != *"-BETA" ]]; then
           docker tag mgrin/thau:${MVN_VERSION} mgrin/thau:latest
           docker push mgrin/thau:latest
-          gsutil cp target/thau-${MVN_VERSION}.jar gs://thau/packages/thau-latest.jar
         fi
