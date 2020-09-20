@@ -12,14 +12,14 @@ Thau API can broadcast events outsidee through different broadcasting channels. 
 
 # Supported login strategies
 
-[x] Password
-[x] Google
-[x] Facebook
-[x] Github
-[] Twitter
-[] LinkedIn
-[] BitBucket
-* and more
+- [x] Password
+- [x] Google
+- [x] Facebook
+- [x] Github
+- [] Twitter
+- [] LinkedIn
+- [] BitBucket
+- and more
 
 # Run
 
