@@ -16,9 +16,9 @@ Thau API can broadcast events outsidee through different broadcasting channels. 
 - [x] Google
 - [x] Facebook
 - [x] Github
-- [] Twitter
-- [] LinkedIn
-- [] BitBucket
+- [ ] Twitter
+- [ ] LinkedIn
+- [ ] BitBucket
 - and more
 
 # Run
