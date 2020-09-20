@@ -2,6 +2,7 @@ package com.mgrin.thau.sessions;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -14,9 +15,11 @@ import com.mgrin.thau.configurations.strategies.Strategy;
 import com.mgrin.thau.credentials.Credentials;
 import com.mgrin.thau.credentials.CredentialService;
 import com.mgrin.thau.sessions.authDto.FacebookAuthDTO;
+import com.mgrin.thau.sessions.authDto.GitHubAuthDTO;
 import com.mgrin.thau.sessions.authDto.GoogleAuthDTO;
 import com.mgrin.thau.sessions.authDto.PasswordAuthDTO;
 import com.mgrin.thau.sessions.externalServices.FacebookService;
+import com.mgrin.thau.sessions.externalServices.GitHubService;
 import com.mgrin.thau.sessions.externalServices.GoogleService;
 
 import com.mgrin.thau.users.User;
@@ -53,15 +56,19 @@ public class SessionAPI {
 
     private GoogleService googleService;
 
+    private GitHubService githubService;
+
     @Autowired
     public SessionAPI(SessionService sessions, UserService users, CredentialService credentials,
-            ThauConfigurations configurations, FacebookService facebookService, GoogleService googleService) {
+            ThauConfigurations configurations, FacebookService facebookService, GoogleService googleService,
+            GitHubService githubService) {
         this.sessions = sessions;
         this.userService = users;
         this.credentialService = credentials;
         this.configurations = configurations;
         this.facebookService = facebookService;
         this.googleService = googleService;
+        this.githubService = githubService;
     }
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -172,6 +179,40 @@ public class SessionAPI {
         } else {
             user = opUser.get();
             userService.updateProvidersData(user, googleUser);
+        }
+
+        Session session = sessions.create(user, Strategy.GOOGLE);
+        String token = sessions.createJWTToken(session);
+        ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
+
+        return response;
+    }
+
+    @PostMapping(path = "/github", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    @Broadcasted(type = BroadcastEventType.EXCHANGE_GITHUB_CODE_FOR_TOKEN)
+    public ResponseEntity<TokenDTO> createSession(@RequestBody GitHubAuthDTO auth) {
+        if (auth.getCode() == null) {
+            throw new APIError(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        Map<String, String> githubUser;
+        try {
+            githubUser = githubService.getGitHubUser(auth.getCode());
+        } catch (Exception e) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        }
+
+        String email = (String) githubUser.get("email");
+
+        Optional<User> opUser = userService.getByEmail(email);
+        User user;
+        if (!opUser.isPresent()) {
+            user = User.of(githubUser);
+            user = userService.create(user, githubUser);
+        } else {
+            user = opUser.get();
+            userService.updateProvidersData(user, githubUser);
         }
 
         Session session = sessions.create(user, Strategy.GOOGLE);

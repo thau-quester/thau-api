@@ -10,6 +10,7 @@ import com.mgrin.thau.configurations.broadcast.BroadcastChannel;
 import com.mgrin.thau.configurations.broadcast.HTTPBroadcastConfiguration;
 import com.mgrin.thau.configurations.jwt.JWTConfiguration;
 import com.mgrin.thau.configurations.strategies.FacebookStrategyConfiguration;
+import com.mgrin.thau.configurations.strategies.GitHubStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.GoogleStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.PasswordStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.Strategy;
@@ -46,6 +47,9 @@ public class ThauConfigurations {
     private FacebookStrategyConfiguration facebookStrategyConfiguration;
 
     @Autowired(required = false)
+    private GitHubStrategyConfiguration githubStrategyConfiguration;
+
+    @Autowired(required = false)
     @JsonIgnore
     private HTTPBroadcastConfiguration httpBroadcastConfiguration;
 
@@ -65,6 +69,10 @@ public class ThauConfigurations {
 
         if (passwordStrategyConfiguration != null) {
             availableStrategies.add(Strategy.PASSWORD);
+        }
+
+        if (githubStrategyConfiguration != null) {
+            availableStrategies.add(Strategy.GITHUB);
         }
 
         this.availableStrategies = availableStrategies;
@@ -118,6 +126,10 @@ public class ThauConfigurations {
 
     public FacebookStrategyConfiguration getFacebookStrategyConfiguration() {
         return facebookStrategyConfiguration;
+    }
+
+    public GitHubStrategyConfiguration getGitHubStrategyConfiguration() {
+        return githubStrategyConfiguration;
     }
 
     public HTTPBroadcastConfiguration getHttpBroadcastConfiguration() {

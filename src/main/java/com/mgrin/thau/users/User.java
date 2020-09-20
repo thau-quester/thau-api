@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -104,6 +105,14 @@ public class User {
         user.setLastName((String) googleUser.get("family_name"));
         user.setGender((String) googleUser.get("gender"));
         user.setPicture((String) googleUser.get("picture"));
+        return user;
+    }
+
+    public static User of(Map<String, String> githubUser) {
+        User user = new User();
+        user.setEmail(githubUser.get("email"));
+        user.setUsername((String) githubUser.get("name"));
+        user.setPicture((String) githubUser.get("avatar_url"));
         return user;
     }
 

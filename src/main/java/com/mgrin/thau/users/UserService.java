@@ -59,6 +59,13 @@ public class UserService {
         return savedUser;
     }
 
+    public User create(User user, Map<String, String> githubUser) {
+        User savedUser = users.save(user);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(githubUser);
+        providers.create(savedUser, Strategy.GITHUB, map);
+        return savedUser;
+    }
+
     public void updateProvidersData(User user, com.restfb.types.User data) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.FACEBOOK);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(data);
@@ -73,11 +80,24 @@ public class UserService {
     }
 
     public void updateProvidersData(User user, GoogleIdToken.Payload payload) {
-        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.FACEBOOK);
+        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.GOOGLE);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(payload);
         Provider provider;
         if (!opProvider.isPresent()) {
             provider = providers.create(user, Strategy.GOOGLE, map);
+        } else {
+            provider = opProvider.get();
+            provider.setData(map);
+            providers.update(provider);
+        }
+    }
+
+    public void updateProvidersData(User user, Map<String, String> githubUser) {
+        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.GITHUB);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(githubUser);
+        Provider provider;
+        if (!opProvider.isPresent()) {
+            provider = providers.create(user, Strategy.GITHUB, map);
         } else {
             provider = opProvider.get();
             provider.setData(map);
@@ -92,5 +112,4 @@ public class UserService {
     public Optional<User> getByEmail(String email) {
         return users.findByEmail(email);
     }
-
 }
