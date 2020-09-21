@@ -12,6 +12,7 @@ import com.mgrin.thau.configurations.jwt.JWTConfiguration;
 import com.mgrin.thau.configurations.strategies.FacebookStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.GitHubStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.GoogleStrategyConfiguration;
+import com.mgrin.thau.configurations.strategies.LinkedInStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.PasswordStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.Strategy;
 import com.mgrin.thau.configurations.strategies.TwitterStrategyConfiguration;
@@ -54,6 +55,9 @@ public class ThauConfigurations {
     private TwitterStrategyConfiguration twitterStrategyConfiguration;
 
     @Autowired(required = false)
+    private LinkedInStrategyConfiguration linkedinStrategyConfiguration;
+
+    @Autowired(required = false)
     @JsonIgnore
     private HTTPBroadcastConfiguration httpBroadcastConfiguration;
 
@@ -81,6 +85,10 @@ public class ThauConfigurations {
 
         if (twitterStrategyConfiguration != null) {
             availableStrategies.add(Strategy.TWITTER);
+        }
+
+        if (linkedinStrategyConfiguration != null) {
+            availableStrategies.add(Strategy.LINKEDIN);
         }
 
         this.availableStrategies = availableStrategies;
@@ -142,6 +150,10 @@ public class ThauConfigurations {
 
     public TwitterStrategyConfiguration getTwitterStrategyConfiguration() {
         return twitterStrategyConfiguration;
+    }
+
+    public LinkedInStrategyConfiguration getLinkedinStrategyConfiguration() {
+        return linkedinStrategyConfiguration;
     }
 
     public HTTPBroadcastConfiguration getHttpBroadcastConfiguration() {

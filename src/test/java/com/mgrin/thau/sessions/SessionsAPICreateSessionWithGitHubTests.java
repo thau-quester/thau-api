@@ -11,6 +11,7 @@ import com.mgrin.thau.broadcaster.BroadcastingService;
 import com.mgrin.thau.broadcaster.BroadcastEvent.BroadcastEventType;
 import com.mgrin.thau.credentials.CredentialService;
 import com.mgrin.thau.sessions.externalServices.GitHubService;
+import com.mgrin.thau.sessions.externalServices.GitHubService.GitHubUser;
 import com.mgrin.thau.users.User;
 import com.mgrin.thau.users.UserService;
 import com.mgrin.thau.utils.HashMapConverter;
@@ -71,9 +72,10 @@ public class SessionsAPICreateSessionWithGitHubTests {
         String email = "new@user";
         Map<String, String> githubUser = new HashMap<>();
         githubUser.put("email", email);
-        Mockito.when(githubService.getGitHubUser("123")).thenReturn(githubUser);
+        Mockito.when(githubService.getGitHubUser("123")).thenReturn((GitHubUser) githubUser);
         Mockito.when(userService.getByEmail(email)).thenReturn(Optional.empty());
-        Mockito.when(userService.create(Mockito.any(), Mockito.eq(githubUser))).thenAnswer(i -> i.getArgument(0));
+        Mockito.when(userService.create(Mockito.any(), Mockito.eq((GitHubUser) githubUser)))
+                .thenAnswer(i -> i.getArgument(0));
         Mockito.when(sessionRepository.save(Mockito.any())).then(i -> {
             Session s = i.getArgument(0);
             testToken = sessionService.createJWTToken(s);
@@ -98,9 +100,9 @@ public class SessionsAPICreateSessionWithGitHubTests {
         String email = "new@user";
         Map<String, String> githubUser = new HashMap<>();
         githubUser.put("email", email);
-        User user = User.of(githubUser);
+        User user = User.of((GitHubUser) githubUser);
 
-        Mockito.when(githubService.getGitHubUser("123")).thenReturn(githubUser);
+        Mockito.when(githubService.getGitHubUser("123")).thenReturn((GitHubUser) githubUser);
         Mockito.when(userService.getByEmail(email)).thenReturn(Optional.of(user));
         Mockito.when(sessionRepository.save(Mockito.any())).then(i -> {
             Session s = i.getArgument(0);
@@ -117,7 +119,7 @@ public class SessionsAPICreateSessionWithGitHubTests {
         Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
         assertThat(body.keySet()).isEqualTo(Set.of("token"));
 
-        Mockito.verify(userService, Mockito.times(1)).updateProvidersData(user, githubUser);
+        Mockito.verify(userService, Mockito.times(1)).updateProvidersData(user, (GitHubUser) githubUser);
         Mockito.verify(broadcastingService).publish(Mockito.eq(BroadcastEventType.EXCHANGE_GITHUB_CODE_FOR_TOKEN),
                 Mockito.any());
     }

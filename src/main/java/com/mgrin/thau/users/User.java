@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.mgrin.thau.sessions.externalServices.GitHubService;
+import com.mgrin.thau.sessions.externalServices.LinkedInService;
 import com.restfb.types.ProfilePictureSource;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -108,11 +110,19 @@ public class User {
         return user;
     }
 
-    public static User of(Map<String, String> githubUser) {
+    public static User of(GitHubService.GitHubUser githubUser) {
         User user = new User();
         user.setEmail(githubUser.get("email"));
         user.setUsername((String) githubUser.get("name"));
         user.setPicture((String) githubUser.get("avatar_url"));
+        return user;
+    }
+
+    public static User of(LinkedInService.LinkedInUser linkedinUser) {
+        User user = new User();
+        user.setEmail(linkedinUser.get("email"));
+        user.setUsername((String) linkedinUser.get("name"));
+        user.setPicture((String) linkedinUser.get("avatar_url"));
         return user;
     }
 

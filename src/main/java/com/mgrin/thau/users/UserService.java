@@ -9,6 +9,8 @@ import com.mgrin.thau.configurations.strategies.Strategy;
 import com.mgrin.thau.credentials.CredentialService;
 import com.mgrin.thau.providers.Provider;
 import com.mgrin.thau.providers.ProviderService;
+import com.mgrin.thau.sessions.externalServices.GitHubService;
+import com.mgrin.thau.sessions.externalServices.LinkedInService;
 import com.mgrin.thau.utils.HashMapConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +61,17 @@ public class UserService {
         return savedUser;
     }
 
-    public User create(User user, Map<String, String> githubUser) {
+    public User create(User user, GitHubService.GitHubUser githubUser) {
         User savedUser = users.save(user);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(githubUser);
         providers.create(savedUser, Strategy.GITHUB, map);
+        return savedUser;
+    }
+
+    public User create(User user, LinkedInService.LinkedInUser linkedinUser) {
+        User savedUser = users.save(user);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(linkedinUser);
+        providers.create(savedUser, Strategy.LINKEDIN, map);
         return savedUser;
     }
 
@@ -99,12 +108,25 @@ public class UserService {
         }
     }
 
-    public void updateProvidersData(User user, Map<String, String> githubUser) {
+    public void updateProvidersData(User user, GitHubService.GitHubUser githubUser) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.GITHUB);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(githubUser);
         Provider provider;
         if (!opProvider.isPresent()) {
             provider = providers.create(user, Strategy.GITHUB, map);
+        } else {
+            provider = opProvider.get();
+            provider.setData(map);
+            providers.update(provider);
+        }
+    }
+
+    public void updateProvidersData(User user, LinkedInService.LinkedInUser linkedinUser) {
+        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.LINKEDIN);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(linkedinUser);
+        Provider provider;
+        if (!opProvider.isPresent()) {
+            provider = providers.create(user, Strategy.LINKEDIN, map);
         } else {
             provider = opProvider.get();
             provider.setData(map);

@@ -24,8 +24,8 @@ public class GitHubService {
     @Autowired
     private ThauConfigurations configurations;
 
-    public Map<String, String> getGitHubUser(String code) throws URISyntaxException, IOException, InterruptedException {
-        Map<String, String> data = new HashMap<>();
+    public GitHubUser getGitHubUser(String code) throws URISyntaxException, IOException, InterruptedException {
+        Map<String, String> data = new HashMap<String, String>();
         data.put("client_id", configurations.getGitHubStrategyConfiguration().getClientId());
         data.put("client_secret", configurations.getGitHubStrategyConfiguration().getClientSecret());
         data.put("code", code);
@@ -45,7 +45,10 @@ public class GitHubService {
                 .header("Accept", "application/json").header("Authorization", "token " + accessToken).GET();
         HttpResponse<String> userInfoResponse = this.client.send(userInfoRequestBuilder.build(),
                 HttpResponse.BodyHandlers.ofString());
-        Map<String, String> userInfo = converter.convertJSONStringToMap(userInfoResponse.body());
+        GitHubUser userInfo = (GitHubUser) (converter.convertJSONStringToMap(userInfoResponse.body()));
         return userInfo;
+    }
+
+    public class GitHubUser extends HashMap<String, String> {
     }
 }

@@ -40,8 +40,8 @@ class ConfigurationsTests {
 
         assertThat(configurations.getEnvironment()).isEqualTo("TEST");
         assertThat(configurations.getAppName()).isEqualTo("thau-test");
-        assertThat(configurations.getAvailableStrategies()).isEqualTo(
-                List.of(Strategy.GOOGLE, Strategy.FACEBOOK, Strategy.PASSWORD, Strategy.GITHUB, Strategy.TWITTER));
+        assertThat(configurations.getAvailableStrategies()).isEqualTo(List.of(Strategy.GOOGLE, Strategy.FACEBOOK,
+                Strategy.PASSWORD, Strategy.GITHUB, Strategy.TWITTER, Strategy.LINKEDIN));
         assertThat(configurations.getBroadcastChannels()).isEqualTo(List.of(BroadcastChannel.HTTP));
 
         assertThat(configurations.getJWTConfiguration()).isNotNull();
@@ -70,7 +70,7 @@ class ConfigurationsTests {
         assertThat(body.get("environment")).isEqualTo("TEST");
         assertThat(body.get("broadcastChannels")).isEqualTo(List.of("http"));
         assertThat(body.get("availableStrategies"))
-                .isEqualTo(List.of("google", "facebook", "password", "github", "twitter"));
+                .isEqualTo(List.of("google", "facebook", "password", "github", "twitter", "linkedin"));
         assertThat(body.keySet()).isEqualTo(Set.of("apiVersion", "environment", "appName",
                 "passwordStrategyConfiguration", "googleStrategyConfiguration", "facebookStrategyConfiguration",
                 "gitHubStrategyConfiguration", "twitterStrategyConfiguration", "availableStrategies",

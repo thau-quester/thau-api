@@ -3,7 +3,8 @@ package com.mgrin.thau.configurations.strategies;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Strategy {
-    FACEBOOK("facebook"), GOOGLE("google"), PASSWORD("password"), GITHUB("github"), TWITTER("twitter");
+    FACEBOOK("facebook"), GOOGLE("google"), PASSWORD("password"), GITHUB("github"), TWITTER("twitter"),
+    LINKEDIN("linkedin");
 
     private String value;
 
