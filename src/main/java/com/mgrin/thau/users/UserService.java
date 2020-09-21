@@ -66,6 +66,13 @@ public class UserService {
         return savedUser;
     }
 
+    public User create(User user, twitter4j.User twitterUser) {
+        User savedUser = users.save(user);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(twitterUser);
+        providers.create(savedUser, Strategy.TWITTER, map);
+        return savedUser;
+    }
+
     public void updateProvidersData(User user, com.restfb.types.User data) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.FACEBOOK);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(data);
@@ -98,6 +105,19 @@ public class UserService {
         Provider provider;
         if (!opProvider.isPresent()) {
             provider = providers.create(user, Strategy.GITHUB, map);
+        } else {
+            provider = opProvider.get();
+            provider.setData(map);
+            providers.update(provider);
+        }
+    }
+
+    public void updateProvidersData(User user, twitter4j.User twitterUser) {
+        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.TWITTER);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(twitterUser);
+        Provider provider;
+        if (!opProvider.isPresent()) {
+            provider = providers.create(user, Strategy.TWITTER, map);
         } else {
             provider = opProvider.get();
             provider.setData(map);

@@ -22,6 +22,7 @@
     <hibernate-envers.version>5.4.19.Final</hibernate-envers.version>
     <restfb.version>3.7.0</restfb.version>
     <google-api-client.version>1.30.10</google-api-client.version>
+    <twitter4j.version>4.0.7</twitter4j.version>
   </properties>
   <dependencies>
     <dependency>
@@ -94,6 +95,11 @@
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
       <version>${google-api-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.twitter4j</groupId>
+      <artifactId>twitter4j-core</artifactId>
+      <version>${twitter4j.version}</version>
     </dependency>
   </dependencies>
   <build>

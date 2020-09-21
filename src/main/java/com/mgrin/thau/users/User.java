@@ -116,6 +116,19 @@ public class User {
         return user;
     }
 
+    public static User of(twitter4j.User twitterUser) {
+        User user = new User();
+        String email = twitterUser.getEmail();
+
+        if (email == null) {
+            email = twitterUser.getScreenName() + "@twitter.thau";
+        }
+        user.setEmail(email);
+        user.setUsername(twitterUser.getScreenName());
+        user.setPicture(twitterUser.getOriginalProfileImageURLHttps());
+        return user;
+    }
+
     public long getId() {
         return id;
     }
