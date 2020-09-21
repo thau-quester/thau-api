@@ -14,6 +14,7 @@ import com.mgrin.thau.configurations.strategies.GitHubStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.GoogleStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.PasswordStrategyConfiguration;
 import com.mgrin.thau.configurations.strategies.Strategy;
+import com.mgrin.thau.configurations.strategies.TwitterStrategyConfiguration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,9 @@ public class ThauConfigurations {
     private GitHubStrategyConfiguration githubStrategyConfiguration;
 
     @Autowired(required = false)
+    private TwitterStrategyConfiguration twitterStrategyConfiguration;
+
+    @Autowired(required = false)
     @JsonIgnore
     private HTTPBroadcastConfiguration httpBroadcastConfiguration;
 
@@ -73,6 +77,10 @@ public class ThauConfigurations {
 
         if (githubStrategyConfiguration != null) {
             availableStrategies.add(Strategy.GITHUB);
+        }
+
+        if (twitterStrategyConfiguration != null) {
+            availableStrategies.add(Strategy.TWITTER);
         }
 
         this.availableStrategies = availableStrategies;

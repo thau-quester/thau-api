@@ -70,9 +70,9 @@ class ConfigurationsTests {
         assertThat(body.get("environment")).isEqualTo("TEST");
         assertThat(body.get("broadcastChannels")).isEqualTo(List.of("http"));
         assertThat(body.get("availableStrategies")).isEqualTo(List.of("google", "facebook", "password"));
-        assertThat(body.keySet())
-                .isEqualTo(Set.of("apiVersion", "environment", "appName", "passwordStrategyConfiguration",
-                        "googleStrategyConfiguration", "facebookStrategyConfiguration", "gitHubStrategyConfiguration",
-                        "availableStrategies", "broadcastChannels", "jwtconfiguration", "corsenabled"));
+        assertThat(body.keySet()).isEqualTo(Set.of("apiVersion", "environment", "appName",
+                "passwordStrategyConfiguration", "googleStrategyConfiguration", "facebookStrategyConfiguration",
+                "gitHubStrategyConfiguration", "twitterStrategyConfiguration", "availableStrategies",
+                "broadcastChannels", "jwtconfiguration", "corsenabled"));
     }
 }

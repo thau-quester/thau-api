@@ -18,6 +18,7 @@ import com.mgrin.thau.sessions.authDto.FacebookAuthDTO;
 import com.mgrin.thau.sessions.authDto.GitHubAuthDTO;
 import com.mgrin.thau.sessions.authDto.GoogleAuthDTO;
 import com.mgrin.thau.sessions.authDto.PasswordAuthDTO;
+import com.mgrin.thau.sessions.authDto.TwitterAuthDTO;
 import com.mgrin.thau.sessions.externalServices.FacebookService;
 import com.mgrin.thau.sessions.externalServices.GitHubService;
 import com.mgrin.thau.sessions.externalServices.GoogleService;
@@ -220,5 +221,18 @@ public class SessionAPI {
         ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
 
         return response;
+    }
+
+    @PostMapping(path = "/twitter", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<TokenDTO> createSession(@RequestBody TwitterAuthDTO auth) {
+        if (auth.getOauth_token() == null && auth.getRedirectURI() == null) {
+            throw new APIError(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        if (auth.getRedirectURI() == null) {
+            String twitterRedirectURI = twitterService.getTwitterRedirectURI();
+        }
+        throw new RuntimeException("Not implemented yet");
     }
 }
