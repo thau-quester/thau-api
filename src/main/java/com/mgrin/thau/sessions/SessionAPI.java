@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.mgrin.thau.APIError;
 import com.mgrin.thau.broadcaster.Broadcasted;
+import com.mgrin.thau.broadcaster.BroadcastingService;
 import com.mgrin.thau.broadcaster.BroadcastEvent.BroadcastEventType;
 import com.mgrin.thau.configurations.ThauConfigurations;
 import com.mgrin.thau.configurations.strategies.Strategy;
@@ -22,12 +23,14 @@ import com.mgrin.thau.sessions.authDto.TwitterAuthDTO;
 import com.mgrin.thau.sessions.externalServices.FacebookService;
 import com.mgrin.thau.sessions.externalServices.GitHubService;
 import com.mgrin.thau.sessions.externalServices.GoogleService;
-
+import com.mgrin.thau.sessions.externalServices.TwitterService;
 import com.mgrin.thau.users.User;
 import com.mgrin.thau.users.UserService;
 import com.mgrin.thau.utils.TokenDTO;
 import com.restfb.exception.FacebookOAuthException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SessionAPI {
 
     public static final String JWT_HEADER = "x-thau-jwt";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionAPI.class);
 
     private SessionService sessions;
 
@@ -59,10 +63,14 @@ public class SessionAPI {
 
     private GitHubService githubService;
 
+    private TwitterService twitterService;
+
+    private BroadcastingService broadcastingService;
+
     @Autowired
     public SessionAPI(SessionService sessions, UserService users, CredentialService credentials,
             ThauConfigurations configurations, FacebookService facebookService, GoogleService googleService,
-            GitHubService githubService) {
+            GitHubService githubService, TwitterService twitterService, BroadcastingService broadcastingService) {
         this.sessions = sessions;
         this.userService = users;
         this.credentialService = credentials;
@@ -70,6 +78,8 @@ public class SessionAPI {
         this.facebookService = facebookService;
         this.googleService = googleService;
         this.githubService = githubService;
+        this.twitterService = twitterService;
+        this.broadcastingService = broadcastingService;
     }
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -230,9 +240,46 @@ public class SessionAPI {
             throw new APIError(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        if (auth.getRedirectURI() == null) {
-            String twitterRedirectURI = twitterService.getTwitterRedirectURI();
+        String twitterRedirectURI;
+        if (auth.getRedirectURI() != null) {
+            try {
+                twitterRedirectURI = twitterService.getTwitterRedirectURI(auth.getRedirectURI());
+            } catch (Exception e) {
+                throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+            }
+
+            if (twitterRedirectURI != null) {
+                throw new APIError(HttpStatus.FOUND, twitterRedirectURI);
+            }
         }
-        throw new RuntimeException("Not implemented yet");
+
+        twitter4j.User twitterUser;
+        try {
+            twitterUser = twitterService.getTwitterUser(auth.getOauth_token(), auth.getOauth_verifier());
+        } catch (Exception e) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        }
+
+        String email = twitterUser.getEmail();
+        if (email == null) {
+            LOGGER.warn(
+                    "Your Twitter app was not Whitelisted and so the user's email is not available. For now, we'll use the fake email being <USERNAME>@twitter.thau");
+            email = twitterUser.getScreenName() + "@twitter.thau";
+        }
+        Optional<User> opUser = userService.getByEmail(email);
+        User user;
+        if (!opUser.isPresent()) {
+            user = User.of(twitterUser);
+            user = userService.create(user, twitterUser);
+        } else {
+            user = opUser.get();
+            userService.updateProvidersData(user, twitterUser);
+        }
+
+        Session session = sessions.create(user, Strategy.TWITTER);
+        String token = sessions.createJWTToken(session);
+        ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
+        broadcastingService.publish(BroadcastEventType.EXCHANGE_TWITTER_AUTH_TOKEN_FOR_TOKEN, response.getBody());
+        return response;
     }
 }

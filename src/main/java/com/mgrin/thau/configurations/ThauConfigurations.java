@@ -140,6 +140,10 @@ public class ThauConfigurations {
         return githubStrategyConfiguration;
     }
 
+    public TwitterStrategyConfiguration getTwitterStrategyConfiguration() {
+        return twitterStrategyConfiguration;
+    }
+
     public HTTPBroadcastConfiguration getHttpBroadcastConfiguration() {
         return httpBroadcastConfiguration;
     }
