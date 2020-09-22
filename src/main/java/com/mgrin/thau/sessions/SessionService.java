@@ -1,5 +1,6 @@
 package com.mgrin.thau.sessions;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -82,6 +83,18 @@ public class SessionService {
         Map<String, String> map = mapper.readValue(payload, typeRef);
 
         Optional<Session> opSession = this.getById(Long.valueOf(map.get("session_id")));
+        if (opSession.isPresent() && !opSession.get().isOpen()) {
+            return Optional.empty();
+        }
         return opSession;
+    }
+
+    public Session closeSession(Session session) {
+        session.setOpen(false);
+        return sessionRepository.save(session);
+    }
+
+    public Collection<Session> getOpenSession(long userId) {
+        return sessionRepository.findOpenSessionsForUserId(userId);
     }
 }

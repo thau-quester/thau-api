@@ -2,7 +2,9 @@ package com.mgrin.thau.sessions;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.mgrin.thau.APIError;
@@ -36,11 +38,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -117,6 +121,32 @@ public class SessionAPI {
             }
         }
         return session;
+    }
+
+    @GetMapping(path = "/open", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public Collection<Session> getOpenSessions(
+            @RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
+        if (token == null) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no token provided");
+        }
+
+        Optional<Session> opSession;
+        try {
+            opSession = sessions.getSessionFromToken(token);
+        } catch (Exception e) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: could not decrypt token", e);
+        }
+
+        if (!opSession.isPresent()) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no session found");
+        }
+
+        Session session = opSession.get();
+        Collection<Session> openSessions = sessions.getOpenSession(session.getUser().getId());
+        return openSessions.stream().map((s) -> {
+            s.setUser(null);
+            return s;
+        }).collect(Collectors.toList());
     }
 
     @PostMapping(path = "/password", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
@@ -320,5 +350,39 @@ public class SessionAPI {
         ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
         broadcastingService.publish(BroadcastEventType.EXCHANGE_TWITTER_AUTH_TOKEN_FOR_TOKEN, response.getBody());
         return response;
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> logout(@RequestParam(required = false) Long sessionId,
+            @RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
+        if (token == null) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no token provided");
+        }
+
+        Optional<Session> opSession;
+        try {
+            opSession = sessions.getSessionFromToken(token);
+        } catch (Exception e) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: could not decrypt token", e);
+        }
+
+        if (!opSession.isPresent()) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no session found");
+        }
+
+        Session session = opSession.get();
+        if (sessionId != null) {
+            Optional<Session> opProvidedSession = sessions.getById(sessionId);
+            if (!opProvidedSession.isPresent()) {
+                throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized: no session found");
+            }
+            Session providedSession = opProvidedSession.get();
+            if (opProvidedSession.get().getUser().getId() != session.getUser().getId()) {
+                throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            }
+            session = providedSession;
+        }
+        sessions.closeSession(session);
+        return ResponseEntity.ok().build();
     }
 }

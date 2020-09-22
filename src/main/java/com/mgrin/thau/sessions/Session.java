@@ -41,6 +41,9 @@ public class Session {
     @NonNull
     private Strategy strategy;
 
+    @Column
+    private boolean open = true;
+
     @CreationTimestamp
     @JsonIgnore
     private LocalDateTime createdAt;
@@ -75,5 +78,13 @@ public class Session {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 }
