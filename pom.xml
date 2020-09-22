@@ -9,7 +9,7 @@
   </parent>
   <groupId>com.mgrin</groupId>
   <artifactId>thau</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
   <name>Thau</name>
   <description>Thau - Ready-to-use authentication service for your application.</description>
   <properties>
