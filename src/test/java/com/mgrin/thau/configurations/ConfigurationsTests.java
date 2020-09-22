@@ -28,52 +28,55 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 class ConfigurationsTests {
 
-    @Autowired
-    private ThauConfigurations configurations;
+        @Autowired
+        private ThauConfigurations configurations;
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Test
-    void contextLoads() throws MalformedURLException {
-        assertThat(configurations).isNotNull();
+        @Test
+        void contextLoads() throws MalformedURLException {
+                assertThat(configurations).isNotNull();
 
-        assertThat(configurations.getEnvironment()).isEqualTo("TEST");
-        assertThat(configurations.getAppName()).isEqualTo("thau-test");
-        assertThat(configurations.getAvailableStrategies()).isEqualTo(
-                List.of(Strategy.GOOGLE, Strategy.FACEBOOK, Strategy.PASSWORD, Strategy.GITHUB, Strategy.TWITTER));
-        assertThat(configurations.getBroadcastChannels()).isEqualTo(List.of(BroadcastChannel.HTTP));
+                assertThat(configurations.getEnvironment()).isEqualTo("TEST");
+                assertThat(configurations.getAppName()).isEqualTo("thau-test");
+                assertThat(configurations.getAvailableStrategies())
+                                .isEqualTo(List.of(Strategy.GOOGLE, Strategy.FACEBOOK, Strategy.PASSWORD,
+                                                Strategy.GITHUB, Strategy.TWITTER, Strategy.LINKEDIN));
+                assertThat(configurations.getBroadcastChannels()).isEqualTo(List.of(BroadcastChannel.HTTP));
 
-        assertThat(configurations.getJWTConfiguration()).isNotNull();
-        assertThat(configurations.getJWTConfiguration().getEncryptionAlgorithm()).isEqualTo("HMAC");
-        assertThat(configurations.getJWTConfiguration().getTokenLifetime()).isEqualTo(864000000);
+                assertThat(configurations.getJWTConfiguration()).isNotNull();
+                assertThat(configurations.getJWTConfiguration().getEncryptionAlgorithm()).isEqualTo("HMAC");
+                assertThat(configurations.getJWTConfiguration().getTokenLifetime()).isEqualTo(864000000);
 
-        assertThat(configurations.getPasswordStrategyConfiguration()).isNotNull();
-        assertThat(configurations.getPasswordStrategyConfiguration().isRequireEmailVerification()).isTrue();
+                assertThat(configurations.getPasswordStrategyConfiguration()).isNotNull();
+                assertThat(configurations.getPasswordStrategyConfiguration().isRequireEmailVerification()).isTrue();
 
-        assertThat(configurations.getFacebookStrategyConfiguration()).isNotNull();
-        assertThat(configurations.getFacebookStrategyConfiguration().getGraphVersion()).isEqualTo("v7.0");
+                assertThat(configurations.getFacebookStrategyConfiguration()).isNotNull();
+                assertThat(configurations.getFacebookStrategyConfiguration().getGraphVersion()).isEqualTo("v7.0");
 
-        assertThat(configurations.getGoogleStrategyConfiguration()).isNotNull();
+                assertThat(configurations.getGoogleStrategyConfiguration()).isNotNull();
 
-        assertThat(configurations.getHttpBroadcastConfiguration()).isNotNull();
-        assertThat(configurations.getHttpBroadcastConfiguration().getUrl()).isEqualTo(new URL("http://google.com/"));
-    }
+                assertThat(configurations.getHttpBroadcastConfiguration()).isNotNull();
+                assertThat(configurations.getHttpBroadcastConfiguration().getUrl())
+                                .isEqualTo(new URL("http://google.com/"));
+        }
 
-    @Test
-    void configurationsEndpointShouldReturnPredefinedShape() throws Exception {
-        MockHttpServletResponse response = this.mockMvc.perform(MockMvcRequestBuilders.get("/configs"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn().getResponse();
-        HashMapConverter converter = new HashMapConverter();
-        Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
-        assertThat(body.get("appName")).isEqualTo("thau-test");
-        assertThat(body.get("environment")).isEqualTo("TEST");
-        assertThat(body.get("broadcastChannels")).isEqualTo(List.of("http"));
-        assertThat(body.get("availableStrategies"))
-                .isEqualTo(List.of("google", "facebook", "password", "github", "twitter"));
-        assertThat(body.keySet()).isEqualTo(Set.of("apiVersion", "environment", "appName",
-                "passwordStrategyConfiguration", "googleStrategyConfiguration", "facebookStrategyConfiguration",
-                "gitHubStrategyConfiguration", "twitterStrategyConfiguration", "availableStrategies",
-                "broadcastChannels", "jwtconfiguration", "corsenabled"));
-    }
+        @Test
+        void configurationsEndpointShouldReturnPredefinedShape() throws Exception {
+                MockHttpServletResponse response = this.mockMvc.perform(MockMvcRequestBuilders.get("/configs"))
+                                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn().getResponse();
+                HashMapConverter converter = new HashMapConverter();
+                Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
+                assertThat(body.get("appName")).isEqualTo("thau-test");
+                assertThat(body.get("environment")).isEqualTo("TEST");
+                assertThat(body.get("broadcastChannels")).isEqualTo(List.of("http"));
+                assertThat(body.get("availableStrategies"))
+                                .isEqualTo(List.of("google", "facebook", "password", "github", "twitter", "linkedin"));
+                assertThat(body.keySet()).isEqualTo(Set.of("apiVersion", "environment", "appName",
+                                "passwordStrategyConfiguration", "googleStrategyConfiguration",
+                                "facebookStrategyConfiguration", "gitHubStrategyConfiguration",
+                                "twitterStrategyConfiguration", "availableStrategies", "linkedinStrategyConfiguration",
+                                "broadcastChannels", "jwtconfiguration", "corsenabled"));
+        }
 }

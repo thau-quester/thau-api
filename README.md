@@ -17,7 +17,7 @@ Thau API can broadcast events outsidee through different broadcasting channels. 
 - [x] Facebook
 - [x] Github
 - [x] Twitter
-- [ ] LinkedIn
+- [x] LinkedIn
 - [ ] BitBucket
 - and more
 
@@ -63,6 +63,8 @@ In both cases, the Thau service is configured using env variables. In case on do
 * `THAU_STRATEGIES_GITHUB_CLIENT_SECRET=` - GitHub client secret
 * `THAU_STRATEGIES_TWITTER_CLIENT_ID=` - Twitter client ID
 * `THAU_STRATEGIES_TWITTER_CLIENT_SECRET=` - Twitter client secret
+* `THAU_STRATEGIES_LINKEDIN_CLIENT_ID=` - LinkedIn client ID
+* `THAU_STRATEGIES_LINKEDIN_CLIENT_SECRET=` - LinkedIn client secret
 * `THAU_BROADCAST_HTTP_URL=` - URL to broadcast events through HTTP channel
 * `THAU_JPA_DIALECT=` - Hibernate dialect. Default: `org.hibernate.dialect.PostgreSQL92Dialect`
 * `THAU_SWAGGER_PATH=` - Path to expose swagger on. Default - `/swagger`

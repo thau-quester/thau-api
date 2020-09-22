@@ -2,7 +2,6 @@ package com.mgrin.thau.sessions;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.Optional;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -18,11 +17,13 @@ import com.mgrin.thau.credentials.CredentialService;
 import com.mgrin.thau.sessions.authDto.FacebookAuthDTO;
 import com.mgrin.thau.sessions.authDto.GitHubAuthDTO;
 import com.mgrin.thau.sessions.authDto.GoogleAuthDTO;
+import com.mgrin.thau.sessions.authDto.LinkedInAuthDTO;
 import com.mgrin.thau.sessions.authDto.PasswordAuthDTO;
 import com.mgrin.thau.sessions.authDto.TwitterAuthDTO;
 import com.mgrin.thau.sessions.externalServices.FacebookService;
 import com.mgrin.thau.sessions.externalServices.GitHubService;
 import com.mgrin.thau.sessions.externalServices.GoogleService;
+import com.mgrin.thau.sessions.externalServices.LinkedInService;
 import com.mgrin.thau.sessions.externalServices.TwitterService;
 import com.mgrin.thau.users.User;
 import com.mgrin.thau.users.UserService;
@@ -65,12 +66,15 @@ public class SessionAPI {
 
     private TwitterService twitterService;
 
+    private LinkedInService linkedinService;
+
     private BroadcastingService broadcastingService;
 
     @Autowired
     public SessionAPI(SessionService sessions, UserService users, CredentialService credentials,
             ThauConfigurations configurations, FacebookService facebookService, GoogleService googleService,
-            GitHubService githubService, TwitterService twitterService, BroadcastingService broadcastingService) {
+            GitHubService githubService, TwitterService twitterService, LinkedInService linkedinService,
+            BroadcastingService broadcastingService) {
         this.sessions = sessions;
         this.userService = users;
         this.credentialService = credentials;
@@ -80,6 +84,7 @@ public class SessionAPI {
         this.githubService = githubService;
         this.twitterService = twitterService;
         this.broadcastingService = broadcastingService;
+        this.linkedinService = linkedinService;
     }
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -207,14 +212,14 @@ public class SessionAPI {
             throw new APIError(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        Map<String, String> githubUser;
+        GitHubService.GitHubUser githubUser;
         try {
             githubUser = githubService.getGitHubUser(auth.getCode());
         } catch (Exception e) {
             throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
         }
 
-        String email = (String) githubUser.get("email");
+        String email = (String) githubUser.getEmail();
 
         Optional<User> opUser = userService.getByEmail(email);
         User user;
@@ -226,7 +231,41 @@ public class SessionAPI {
             userService.updateProvidersData(user, githubUser);
         }
 
-        Session session = sessions.create(user, Strategy.GOOGLE);
+        Session session = sessions.create(user, Strategy.GITHUB);
+        String token = sessions.createJWTToken(session);
+        ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
+
+        return response;
+    }
+
+    @PostMapping(path = "/linkedin", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    @Broadcasted(type = BroadcastEventType.EXCHANGE_LINKEDIN_CODE_FOR_TOKEN)
+    public ResponseEntity<TokenDTO> createSession(@RequestBody LinkedInAuthDTO auth) {
+        if (auth.getCode() == null) {
+            throw new APIError(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        LinkedInService.LinkedInUser linkedinUser;
+        try {
+            linkedinUser = linkedinService.getLinkedInUser(auth.getCode(), auth.getRedirectURI());
+        } catch (Exception e) {
+            throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        }
+
+        String email = (String) linkedinUser.getEmail();
+
+        Optional<User> opUser = userService.getByEmail(email);
+        User user;
+        if (!opUser.isPresent()) {
+            user = User.of(linkedinUser);
+            user = userService.create(user, linkedinUser);
+        } else {
+            user = opUser.get();
+            userService.updateProvidersData(user, linkedinUser);
+        }
+
+        Session session = sessions.create(user, Strategy.LINKEDIN);
         String token = sessions.createJWTToken(session);
         ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
 

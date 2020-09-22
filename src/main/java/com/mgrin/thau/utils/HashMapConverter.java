@@ -7,7 +7,6 @@ import javax.persistence.AttributeConverter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
@@ -29,15 +28,6 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
         }
     }
 
-    public String convertMapToJSONString(Map<String, String> data) {
-        try {
-            return mapper.writeValueAsString(data);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to pars JSON", e);
-            return null;
-        }
-    }
-
     @Override
     public Map<String, Object> convertToEntityAttribute(String customerInfoJSON) {
         Map<String, Object> map = null;
@@ -50,11 +40,6 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
         }
 
         return map;
-    }
-
-    public Map<String, String> convertJSONStringToMap(String json)
-            throws JsonMappingException, JsonProcessingException {
-        return mapper.readValue(json, Map.class);
     }
 
     public static Map<String, Object> convertObjectToMap(Object object) {

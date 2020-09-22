@@ -9,6 +9,8 @@ import com.mgrin.thau.configurations.strategies.Strategy;
 import com.mgrin.thau.credentials.CredentialService;
 import com.mgrin.thau.providers.Provider;
 import com.mgrin.thau.providers.ProviderService;
+import com.mgrin.thau.sessions.externalServices.GitHubService;
+import com.mgrin.thau.sessions.externalServices.LinkedInService;
 import com.mgrin.thau.utils.HashMapConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +61,17 @@ public class UserService {
         return savedUser;
     }
 
-    public User create(User user, Map<String, String> githubUser) {
+    public User create(User user, GitHubService.GitHubUser githubUser) {
         User savedUser = users.save(user);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(githubUser);
         providers.create(savedUser, Strategy.GITHUB, map);
+        return savedUser;
+    }
+
+    public User create(User user, LinkedInService.LinkedInUser linkedinUser) {
+        User savedUser = users.save(user);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(linkedinUser);
+        providers.create(savedUser, Strategy.LINKEDIN, map);
         return savedUser;
     }
 
@@ -73,9 +82,9 @@ public class UserService {
         return savedUser;
     }
 
-    public void updateProvidersData(User user, com.restfb.types.User data) {
+    public void updateProvidersData(User user, com.restfb.types.User fbUser) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.FACEBOOK);
-        Map<String, Object> map = HashMapConverter.convertObjectToMap(data);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(fbUser);
         Provider provider;
         if (!opProvider.isPresent()) {
             provider = providers.create(user, Strategy.FACEBOOK, map);
@@ -84,11 +93,17 @@ public class UserService {
             provider.setData(map);
             providers.update(provider);
         }
+
+        User updatedUser = User.of(fbUser);
+        Optional<User> opUser = user.applyProvidersUpdate(updatedUser);
+        if (opUser.isPresent()) {
+            users.save(opUser.get());
+        }
     }
 
-    public void updateProvidersData(User user, GoogleIdToken.Payload payload) {
+    public void updateProvidersData(User user, GoogleIdToken.Payload googleUser) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.GOOGLE);
-        Map<String, Object> map = HashMapConverter.convertObjectToMap(payload);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(googleUser);
         Provider provider;
         if (!opProvider.isPresent()) {
             provider = providers.create(user, Strategy.GOOGLE, map);
@@ -97,9 +112,15 @@ public class UserService {
             provider.setData(map);
             providers.update(provider);
         }
+
+        User updatedUser = User.of(googleUser);
+        Optional<User> opUser = user.applyProvidersUpdate(updatedUser);
+        if (opUser.isPresent()) {
+            users.save(opUser.get());
+        }
     }
 
-    public void updateProvidersData(User user, Map<String, String> githubUser) {
+    public void updateProvidersData(User user, GitHubService.GitHubUser githubUser) {
         Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.GITHUB);
         Map<String, Object> map = HashMapConverter.convertObjectToMap(githubUser);
         Provider provider;
@@ -109,6 +130,31 @@ public class UserService {
             provider = opProvider.get();
             provider.setData(map);
             providers.update(provider);
+        }
+
+        User updatedUser = User.of(githubUser);
+        Optional<User> opUser = user.applyProvidersUpdate(updatedUser);
+        if (opUser.isPresent()) {
+            users.save(opUser.get());
+        }
+    }
+
+    public void updateProvidersData(User user, LinkedInService.LinkedInUser linkedinUser) {
+        Optional<Provider> opProvider = providers.getByUserAndStrategy(user, Strategy.LINKEDIN);
+        Map<String, Object> map = HashMapConverter.convertObjectToMap(linkedinUser);
+        Provider provider;
+        if (!opProvider.isPresent()) {
+            provider = providers.create(user, Strategy.LINKEDIN, map);
+        } else {
+            provider = opProvider.get();
+            provider.setData(map);
+            providers.update(provider);
+        }
+
+        User updatedUser = User.of(linkedinUser);
+        Optional<User> opUser = user.applyProvidersUpdate(updatedUser);
+        if (opUser.isPresent()) {
+            users.save(opUser.get());
         }
     }
 
@@ -122,6 +168,12 @@ public class UserService {
             provider = opProvider.get();
             provider.setData(map);
             providers.update(provider);
+        }
+
+        User updatedUser = User.of(twitterUser);
+        Optional<User> opUser = user.applyProvidersUpdate(updatedUser);
+        if (opUser.isPresent()) {
+            users.save(opUser.get());
         }
     }
 

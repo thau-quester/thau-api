@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mgrin.thau.configurations.ThauConfigurations;
-import com.mgrin.thau.utils.HashMapConverter;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,28 +24,81 @@ public class GitHubService {
     @Autowired
     private ThauConfigurations configurations;
 
-    public Map<String, String> getGitHubUser(String code) throws URISyntaxException, IOException, InterruptedException {
-        Map<String, String> data = new HashMap<>();
+    public GitHubUser getGitHubUser(String code) throws URISyntaxException, IOException, InterruptedException {
+        Map<String, String> data = new HashMap<String, String>();
         data.put("client_id", configurations.getGitHubStrategyConfiguration().getClientId());
         data.put("client_secret", configurations.getGitHubStrategyConfiguration().getClientSecret());
         data.put("code", code);
 
-        HashMapConverter converter = new HashMapConverter();
-
         HttpRequest.Builder accessTokenRequestBuilder = HttpRequest.newBuilder(new URI(GITHUB_ACCESS_TOKEN_URI))
                 .header("Content-Type", "application/json").header("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(converter.convertMapToJSONString(data)));
+                .POST(HttpRequest.BodyPublishers.ofString(new JSONObject(data).toString()));
 
         HttpResponse<String> accessTokenResponse = this.client.send(accessTokenRequestBuilder.build(),
                 HttpResponse.BodyHandlers.ofString());
-        Map<String, String> body = converter.convertJSONStringToMap(accessTokenResponse.body());
-        String accessToken = body.get("access_token");
+        JSONObject body = new JSONObject(accessTokenResponse.body());
+        String accessToken = (String) body.get("access_token");
 
         HttpRequest.Builder userInfoRequestBuilder = HttpRequest.newBuilder(new URI(GITHUB_USER_INFO_URI))
                 .header("Accept", "application/json").header("Authorization", "token " + accessToken).GET();
         HttpResponse<String> userInfoResponse = this.client.send(userInfoRequestBuilder.build(),
                 HttpResponse.BodyHandlers.ofString());
-        Map<String, String> userInfo = converter.convertJSONStringToMap(userInfoResponse.body());
+        GitHubUser userInfo = new GitHubUser(new JSONObject(userInfoResponse.body()));
         return userInfo;
+    }
+
+    public static class GitHubUser {
+        private String original = "{\n";
+        private String email;
+        private String name;
+        private String avatarUrl;
+
+        public GitHubUser(JSONObject body) {
+            for (String key : body.keySet()) {
+                original += key + " : " + String.valueOf(body.get(key)) + ",\n";
+            }
+            original += "}";
+            if (body.has("email")) {
+                this.email = (String) body.get("email");
+            }
+            if (body.has("name")) {
+                this.name = (String) body.get("name");
+            }
+            if (body.has("avatar_url")) {
+                this.avatarUrl = (String) body.get("avatar_url");
+            }
+        }
+
+        public String getOriginal() {
+            return original;
+        }
+
+        public void setOriginal(String original) {
+            this.original = original;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getAvatarUrl() {
+            return avatarUrl;
+        }
+
+        public void setAvatarUrl(String avatarUrl) {
+            this.avatarUrl = avatarUrl;
+        }
     }
 }
