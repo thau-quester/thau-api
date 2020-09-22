@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -112,17 +112,17 @@ public class User {
 
     public static User of(GitHubService.GitHubUser githubUser) {
         User user = new User();
-        user.setEmail(githubUser.get("email"));
-        user.setUsername((String) githubUser.get("name"));
-        user.setPicture((String) githubUser.get("avatar_url"));
+        user.setEmail(githubUser.getEmail());
+        user.setUsername(githubUser.getName());
+        user.setPicture(githubUser.getAvatarUrl());
         return user;
     }
 
     public static User of(LinkedInService.LinkedInUser linkedinUser) {
         User user = new User();
-        user.setEmail(linkedinUser.get("email"));
-        user.setUsername((String) linkedinUser.get("name"));
-        user.setPicture((String) linkedinUser.get("avatar_url"));
+        user.setEmail(linkedinUser.getEmail());
+        user.setUsername(linkedinUser.getLocalizedFirstName() + "." + linkedinUser.getLocalizedLastName());
+        user.setPicture(linkedinUser.getProfilePicture());
         return user;
     }
 
@@ -137,6 +137,45 @@ public class User {
         user.setUsername(twitterUser.getScreenName());
         user.setPicture(twitterUser.getOriginalProfileImageURLHttps());
         return user;
+    }
+
+    public Optional<User> applyProvidersUpdate(User updatedUser) {
+        boolean needSaving = false;
+        if (this.getUsername() == null && updatedUser.getUsername() != null) {
+            this.setUsername(updatedUser.getUsername());
+            needSaving = true;
+        }
+
+        if (this.getFirstName() == null && updatedUser.getFirstName() != null) {
+            this.setFirstName(updatedUser.getFirstName());
+            needSaving = true;
+        }
+
+        if (this.getLastName() == null && updatedUser.getLastName() != null) {
+            this.setLastName(updatedUser.getLastName());
+            needSaving = true;
+        }
+
+        if (this.getDateOfBirth() == null && updatedUser.getDateOfBirth() != null) {
+            this.setDateOfBirth(updatedUser.getDateOfBirth());
+            needSaving = true;
+        }
+
+        if (this.getGender() == null && updatedUser.getGender() != null) {
+            this.setGender(updatedUser.getGender());
+            needSaving = true;
+        }
+
+        if (this.getPicture() == null && updatedUser.getPicture() != null) {
+            this.setPicture(updatedUser.getPicture());
+            needSaving = true;
+        }
+
+        if (needSaving) {
+            return Optional.of(this);
+        }
+
+        return Optional.empty();
     }
 
     public long getId() {

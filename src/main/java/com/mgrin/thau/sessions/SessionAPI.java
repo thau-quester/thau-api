@@ -219,7 +219,7 @@ public class SessionAPI {
             throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
         }
 
-        String email = (String) githubUser.get("email");
+        String email = (String) githubUser.getEmail();
 
         Optional<User> opUser = userService.getByEmail(email);
         User user;
@@ -253,7 +253,7 @@ public class SessionAPI {
             throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
         }
 
-        String email = (String) linkedinUser.get("email");
+        String email = (String) linkedinUser.getEmail();
 
         Optional<User> opUser = userService.getByEmail(email);
         User user;
@@ -265,7 +265,7 @@ public class SessionAPI {
             userService.updateProvidersData(user, linkedinUser);
         }
 
-        Session session = sessions.create(user, Strategy.GITHUB);
+        Session session = sessions.create(user, Strategy.LINKEDIN);
         String token = sessions.createJWTToken(session);
         ResponseEntity<TokenDTO> response = ResponseEntity.ok().header(JWT_HEADER, token).body(new TokenDTO(token));
 
