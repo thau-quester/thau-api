@@ -112,7 +112,7 @@ public class SessionsAPIGetSessionTests {
         Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
 
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(body.keySet()).isEqualTo(Set.of("id", "user", "strategy"));
+        assertThat(body.keySet()).isEqualTo(Set.of("id", "user", "strategy", "open"));
         assertThat(body.get("id")).isEqualTo(1);
         Map<String, Object> receivedUser = (Map<String, Object>) body.get("user");
         assertThat(receivedUser.get("id")).isEqualTo(1);
@@ -194,7 +194,7 @@ public class SessionsAPIGetSessionTests {
         Map<String, Object> body = converter.convertToEntityAttribute(response.getContentAsString());
 
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(body.keySet()).isEqualTo(Set.of("id", "user", "strategy"));
+        assertThat(body.keySet()).isEqualTo(Set.of("id", "user", "strategy", "open"));
         assertThat(body.get("id")).isEqualTo(1);
         Map<String, Object> receivedUser = (Map<String, Object>) body.get("user");
         assertThat(receivedUser.get("id")).isEqualTo(1);
