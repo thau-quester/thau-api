@@ -352,7 +352,7 @@ public class SessionAPI {
         return response;
     }
 
-    @DeleteMapping(consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping
     public ResponseEntity<Void> logout(@RequestParam(required = false) Long sessionId,
             @RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
         if (token == null) {
