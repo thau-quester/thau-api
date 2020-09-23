@@ -1,5 +1,6 @@
 package com.mgrin.thau.providers;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,5 +77,9 @@ public class ProviderService {
 
     public Provider update(Provider provider) {
         return providerRepository.save(provider);
+    }
+
+    public Collection<Provider> getProvidersForUserId(Long userId) {
+        return providerRepository.findProvidersForUserId(userId);
     }
 }

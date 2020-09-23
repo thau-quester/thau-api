@@ -23,10 +23,10 @@ public class ProviderAPI {
 
     private SessionService sessionService;
 
-    private ProviderRepository providers;
+    private ProviderService providers;
 
     @Autowired
-    public ProviderAPI(ProviderRepository providers, SessionService sessionService) {
+    public ProviderAPI(ProviderService providers, SessionService sessionService) {
         this.providers = providers;
         this.sessionService = sessionService;
     }
@@ -35,7 +35,7 @@ public class ProviderAPI {
     public Collection<Provider> getUserProviders(@RequestParam(required = false) Long userId,
             @RequestHeader(name = SessionAPI.JWT_HEADER, required = false) String token) {
         Long requestedUserId = userId;
-        if (token == null && userId == null) {
+        if (token == null && requestedUserId == null) {
             throw new APIError(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
 
@@ -54,7 +54,6 @@ public class ProviderAPI {
             requestedUserId = opSession.get().getUser().getId();
         }
 
-        Collection<Provider> userProviders = providers.findProvidersForUserId(requestedUserId);
-        return userProviders;
+        return providers.getProvidersForUserId(requestedUserId);
     }
 }

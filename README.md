@@ -21,6 +21,12 @@ Thau API can broadcast events outsidee through different broadcasting channels. 
 - [ ] BitBucket
 - and more
 
+# Documentation
+
+Currently only Open API is available as documentation for Thau API.
+
+You can access it at `/api/v1/swagger` after startingg your service.
+
 # Run
 
 As a docker image:
