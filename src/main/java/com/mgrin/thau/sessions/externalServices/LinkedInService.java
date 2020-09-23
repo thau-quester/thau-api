@@ -24,7 +24,7 @@ public class LinkedInService {
 
     private HttpClient client = HttpClient.newHttpClient();
     private static final String LINKEDIN_ACCESS_TOKEN_URI = "https://www.linkedin.com/oauth/v2/accessToken";
-    private static final String LINKEDIN_USER_INFO_URI = "https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName,profilePicture(displayImage~:playableStreams))";
+    private static final String LINKEDIN_USER_INFO_URI = "https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName,profilePicture(displayImage~:playableStreams),vanityName)";
     private static final String LINKEDIN_USER_EMAIL_URI = "https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))";
     @Autowired
     private ThauConfigurations configurations;
@@ -90,6 +90,7 @@ public class LinkedInService {
         private String localizedFirstName;
         private String localizedLastName;
         private String profilePicture;
+        private String vanityName;
 
         public LinkedInUser(JSONObject body) {
             for (String key : body.keySet()) {
@@ -106,6 +107,10 @@ public class LinkedInService {
             if (body.has("localizedLastName")) {
                 this.localizedLastName = (String) body.get("localizedLastName");
             }
+            if (body.has("vanityName")) {
+                this.vanityName = (String) body.get("vanityName");
+            }
+
             if (body.has("profilePicture")) {
                 JSONObject piture = (JSONObject) body.get("profilePicture");
                 JSONObject displayImage = (JSONObject) piture.get("displayImage~");
@@ -155,6 +160,14 @@ public class LinkedInService {
 
         public void setProfilePicture(String profilePicture) {
             this.profilePicture = profilePicture;
+        }
+
+        public String getVanityName() {
+            return vanityName;
+        }
+
+        public void setVanityName(String vanityName) {
+            this.vanityName = vanityName;
         }
     }
 }

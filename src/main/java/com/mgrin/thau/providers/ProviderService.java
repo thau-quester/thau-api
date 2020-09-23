@@ -37,6 +37,36 @@ public class ProviderService {
         provider.setUser(user);
         provider.setData(data);
 
+        switch (strategy) {
+            case FACEBOOK: {
+                if (data.containsKey("link")) {
+                    provider.setProviderUrl((String) data.get("link"));
+                }
+                break;
+            }
+
+            case GITHUB: {
+                provider.setProviderUrl((String) data.get("htmlUrl"));
+                break;
+            }
+
+            case TWITTER: {
+                provider.setProviderUrl("https://twitter.com/" + (String) data.get("screenName"));
+                break;
+            }
+
+            case LINKEDIN: {
+                if (data.containsKey("vanityName")) {
+                    provider.setProviderUrl("https://linkedin.com/in/" + (String) data.get("vanityName"));
+                }
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
         return providerRepository.save(provider);
     }
 
