@@ -50,6 +50,10 @@ public class LinkedInService {
         HttpResponse<String> accessTokenResponse = this.client.send(accessTokenRequestBuilder.build(),
                 HttpResponse.BodyHandlers.ofString());
         JSONObject body = new JSONObject(accessTokenResponse.body());
+        if (!body.has("access_token")) {
+            throw new InterruptedException("No access token returned by linkedin");
+        }
+
         String accessToken = (String) body.get("access_token");
 
         HttpRequest.Builder userInfoRequestBuilder = HttpRequest.newBuilder(new URI(LINKEDIN_USER_INFO_URI))
