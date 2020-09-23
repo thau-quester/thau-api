@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mgrin.thau.configurations.strategies.Strategy;
 
@@ -35,20 +36,27 @@ public class Provider {
     private long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     private User user;
 
     @Column
     @Enumerated(EnumType.STRING)
     private Strategy provider;
 
+    @Column
+    private String providerUrl;
+
     @Column(columnDefinition = "text")
     @Convert(converter = HashMapConverter.class)
+    @JsonIgnore
     private Map<String, Object> data;
 
     @CreationTimestamp
+    @JsonIgnore
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @JsonIgnore
     public LocalDateTime updatedAt;
 
     public long getId() {
@@ -81,6 +89,14 @@ public class Provider {
 
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public String getProviderUrl() {
+        return providerUrl;
+    }
+
+    public void setProviderUrl(String providerUrl) {
+        this.providerUrl = providerUrl;
     }
 
 }

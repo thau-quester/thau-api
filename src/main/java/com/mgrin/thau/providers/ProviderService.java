@@ -1,5 +1,6 @@
 package com.mgrin.thau.providers;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,6 +38,36 @@ public class ProviderService {
         provider.setUser(user);
         provider.setData(data);
 
+        switch (strategy) {
+            case FACEBOOK: {
+                if (data.containsKey("link")) {
+                    provider.setProviderUrl((String) data.get("link"));
+                }
+                break;
+            }
+
+            case GITHUB: {
+                provider.setProviderUrl((String) data.get("htmlUrl"));
+                break;
+            }
+
+            case TWITTER: {
+                provider.setProviderUrl("https://twitter.com/" + (String) data.get("screenName"));
+                break;
+            }
+
+            case LINKEDIN: {
+                if (data.containsKey("vanityName")) {
+                    provider.setProviderUrl("https://linkedin.com/in/" + (String) data.get("vanityName"));
+                }
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
         return providerRepository.save(provider);
     }
 
@@ -46,5 +77,9 @@ public class ProviderService {
 
     public Provider update(Provider provider) {
         return providerRepository.save(provider);
+    }
+
+    public Collection<Provider> getProvidersForUserId(Long userId) {
+        return providerRepository.findProvidersForUserId(userId);
     }
 }

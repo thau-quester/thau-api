@@ -52,6 +52,7 @@ public class GitHubService {
         private String email;
         private String name;
         private String avatarUrl;
+        private String htmlUrl;
 
         public GitHubUser(JSONObject body) {
             for (String key : body.keySet()) {
@@ -66,6 +67,9 @@ public class GitHubService {
             }
             if (body.has("avatar_url")) {
                 this.avatarUrl = (String) body.get("avatar_url");
+            }
+            if (body.has("html_url")) {
+                this.htmlUrl = (String) body.get("html_url");
             }
         }
 
@@ -99,6 +103,14 @@ public class GitHubService {
 
         public void setAvatarUrl(String avatarUrl) {
             this.avatarUrl = avatarUrl;
+        }
+
+        public String getHtmlUrl() {
+            return htmlUrl;
+        }
+
+        public void setHtmlUrl(String htmlUrl) {
+            this.htmlUrl = htmlUrl;
         }
     }
 }

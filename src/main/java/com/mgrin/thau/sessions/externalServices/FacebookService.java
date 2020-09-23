@@ -20,7 +20,7 @@ public class FacebookService {
         FacebookClient facebookClient = new DefaultFacebookClient(accessToken,
                 Version.getVersionFromString(configurations.getFacebookStrategyConfiguration().getGraphVersion()));
         com.restfb.types.User facebookUser = facebookClient.fetchObject("me", com.restfb.types.User.class,
-                Parameter.with("fields", "id,first_name,last_name,email,birthday,gender,picture.type(large)"));
+                Parameter.with("fields", "id,first_name,last_name,email,birthday,gender,picture.type(large),link"));
 
         return facebookUser;
     }
