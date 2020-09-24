@@ -36,6 +36,10 @@ public class ThauConfigurations {
     @Value("${thau.app.cors}")
     private boolean corsEnabled;
 
+    @Value("${thau.permissions.super_admin_email}")
+    @JsonIgnore
+    private String superAdminEmail;
+
     @Autowired
     private JWTConfiguration jwtConfiguration;
 
@@ -114,6 +118,10 @@ public class ThauConfigurations {
 
     public String getAppName() {
         return appName;
+    }
+
+    public String getSuperAdminEmail() {
+        return superAdminEmail;
     }
 
     public boolean isCORSEnabled() {

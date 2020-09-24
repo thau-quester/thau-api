@@ -60,7 +60,7 @@ public class User {
     @Column
     private String gender;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 2048)
     @URL
     private String picture;
 

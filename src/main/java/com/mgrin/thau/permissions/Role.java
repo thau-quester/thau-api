@@ -1,23 +1,19 @@
-package com.mgrin.thau.sessions;
+package com.mgrin.thau.permissions;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mgrin.thau.configurations.strategies.Strategy;
-
 import com.mgrin.thau.users.User;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,34 +22,32 @@ import org.hibernate.envers.Audited;
 import org.springframework.lang.NonNull;
 
 @Entity
-@Table(name = "ThauSessions")
+@Table(name = "ThauRoles")
 @Audited
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class Session {
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private User user;
-
     @Column
-    @Enumerated(EnumType.STRING)
     @NonNull
-    private Strategy strategy;
+    private String name;
 
-    @Column
-    private boolean open = true;
+    @Column(length = 1024)
+    private String description;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private User creator;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<User> users;
 
     @CreationTimestamp
-    @JsonIgnore
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @JsonIgnore
     public LocalDateTime updatedAt;
-
-    private List<String> roles;
 
     public long getId() {
         return id;
@@ -63,44 +57,44 @@ public class Session {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public String getName() {
+        return name;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Strategy getStrategy() {
-        return strategy;
+    public String getDescription() {
+        return description;
     }
 
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public boolean isOpen() {
-        return open;
-    }
-
-    public void setOpen(boolean open) {
-        this.open = open;
-    }
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
 }

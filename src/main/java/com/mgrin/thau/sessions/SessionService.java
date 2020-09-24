@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mgrin.thau.configurations.ThauConfigurations;
 import com.mgrin.thau.configurations.strategies.Strategy;
-
+import com.mgrin.thau.permissions.PermissionService;
 import com.mgrin.thau.users.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +32,15 @@ public class SessionService {
 
     private SessionRepository sessionRepository;
 
+    private PermissionService permissionService;
     private ThauConfigurations configurations;
 
     @Autowired
-    public SessionService(SessionRepository sessionRepository, ThauConfigurations configurations) {
+    public SessionService(SessionRepository sessionRepository, PermissionService permissionService,
+            ThauConfigurations configurations) {
         this.sessionRepository = sessionRepository;
         this.configurations = configurations;
+        this.permissionService = permissionService;
     }
 
     public Optional<Session> getById(long id) {
@@ -86,6 +89,7 @@ public class SessionService {
         if (opSession.isPresent() && !opSession.get().isOpen()) {
             return Optional.empty();
         }
+        opSession.get().setRoles(permissionService.getUserRoles(opSession.get().getUser()));
         return opSession;
     }
 
